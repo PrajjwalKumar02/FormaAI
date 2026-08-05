@@ -1,199 +1,140 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from "react";
+import api from "../services/api";
 
-// Create the context
 const AuthContext = createContext();
 
-// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
+
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
+
   return context;
 };
 
-// Auth Provider component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // DEMO USER
-  const DEMO_USERS = [
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@demo.com',
-      password: 'demo123',
-      role: 'admin',
-      avatar: 'JD'
-    }
-  ];
-
-  // Check for existing session on mount
+  // Load user from localStorage
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = localStorage.getItem("user");
+
     if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('user');
-      }
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
-  //  Get all registered users from localStorage
-  const getRegisteredUsers = () => {
-    const users = localStorage.getItem('registeredUsers');
-    return users ? JSON.parse(users) : [];
-  };
-
-  //  Save users to localStorage
-  const saveRegisteredUsers = (users) => {
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-  };
-
-  //  Login function
+  // ======================
+  // LOGIN
+  // ======================
   const login = async (email, password) => {
     setLoading(true);
     setError(null);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const res = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
 
-      //  Check demo user first
-      let foundUser = DEMO_USERS.find(
-        u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-      );
+      const { token, user } = res.data;
 
-      //  If not found, check registered users
-      if (!foundUser) {
-        const registeredUsers = getRegisteredUsers();
-        const registeredUser = registeredUsers.find(
-          u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-        );
-        if (registeredUser) {
-          foundUser = registeredUser;
-        }
-      }
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-      if (!foundUser) {
-        throw new Error('Invalid email or password. Please try again.');
-      }
+      setUser(user);
 
-      const userData = {
-        id: foundUser.id,
-        name: foundUser.name,
-        email: foundUser.email,
-        role: foundUser.role || 'user',
-        avatar: foundUser.avatar || foundUser.name.charAt(0).toUpperCase()
+      return {
+        success: true,
+        user,
       };
-
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      return { success: true, user: userData };
     } catch (err) {
-      setError(err.message || 'Login failed');
-      return { success: false, error: err.message };
+      const message =
+        err.response?.data?.message || "Login Failed";
+
+      setError(message);
+
+      return {
+        success: false,
+        error: message,
+      };
     } finally {
       setLoading(false);
     }
   };
 
-  //  Register function
+  // ======================
+  // REGISTER
+  // ======================
   const register = async (name, email, password) => {
     setLoading(true);
     setError(null);
+
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const res = await api.post("/api/auth/register", {
+        name,
+        email,
+        password,
+      });
 
-      if (!name || !email || !password) {
-        throw new Error('Please fill in all fields');
-      }
-      if (password.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
+      const user = res.data.user;
 
-      const registeredUsers = getRegisteredUsers();
-      const existingUser = registeredUsers.find(
-        u => u.email.toLowerCase() === email.toLowerCase()
-      );
+      localStorage.setItem("user", JSON.stringify(user));
 
-      if (existingUser) {
-        throw new Error('This email is already registered. Please login.');
-      }
+      setUser(user);
 
-      const newUser = {
-        id: 'user_' + Date.now(),
-        name: name,
-        email: email.toLowerCase(),
-        password: password,
-        role: 'user',
-        avatar: name.charAt(0).toUpperCase(),
-        createdAt: new Date().toISOString()
+      return {
+        success: true,
+        user,
       };
-
-      registeredUsers.push(newUser);
-      saveRegisteredUsers(registeredUsers);
-
-      const userData = {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
-        avatar: newUser.avatar
-      };
-
-      setUser(userData);
-      localStorage.setItem('user', JSON.stringify(userData));
-      return { success: true, user: userData };
     } catch (err) {
-      setError(err.message || 'Registration failed');
-      return { success: false, error: err.message };
+      const message =
+        err.response?.data?.message || "Registration Failed";
+
+      setError(message);
+
+      return {
+        success: false,
+        error: message,
+      };
     } finally {
       setLoading(false);
     }
   };
 
-  //  Logout function
+  // ======================
+  // LOGOUT
+  // ======================
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
+
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+
     setError(null);
   };
 
-  //  Clear error
+  // ======================
+  // CLEAR ERROR
+  // ======================
   const clearError = () => {
     setError(null);
   };
 
-  //  Get user by email
-  const getUserByEmail = (email) => {
-    const allUsers = [...DEMO_USERS, ...getRegisteredUsers()];
-    return allUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+  // ======================
+  // RESET PASSWORD
+  // (Placeholder)
+  // ======================
+  const resetPassword = async () => {
+    return {
+      success: false,
+      error: "Reset password not implemented yet",
+    };
   };
 
-  //  Reset password
-  const resetPassword = async (email) => {
-    setLoading(true);
-    setError(null);
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      const user = getUserByEmail(email);
-      if (!user) {
-        throw new Error('No account found with this email');
-      }
-
-      return { success: true, message: 'Password reset link sent to your email' };
-    } catch (err) {
-      setError(err.message);
-      return { success: false, error: err.message };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Value object
   const value = {
     user,
     loading,
@@ -203,7 +144,6 @@ export const AuthProvider = ({ children }) => {
     logout,
     clearError,
     resetPassword,
-    getUserByEmail,
     isAuthenticated: !!user,
   };
 

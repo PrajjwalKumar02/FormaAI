@@ -18,12 +18,12 @@ const SelectField = ({ field }) => {
         >
             <select
                 id={field.id}
+                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all bg-white"
                 {...register(field.id, field.validation || {})}
             >
                 <option value="">
-                    {field.placeholder || "Select"}
+                    {field.placeholder || "Select an option"}
                 </option>
-
                 {field.options?.map((option) => (
                     <option
                         key={option.value || option}

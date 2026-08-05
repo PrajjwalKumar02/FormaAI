@@ -10,4 +10,14 @@ def validate_response(response):
         if key not in response:
             return False
 
+    if not isinstance(response["fields"], list):
+        return False
+
+    for field in response["fields"]:
+        field_keys = ["label", "type", "required"]
+
+        for key in field_keys:
+            if key not in field:
+                return False
+
     return True

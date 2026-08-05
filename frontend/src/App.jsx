@@ -1,7 +1,9 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AnimatePresence } from 'framer-motion';
+import { useEffect } from 'react';
+import api from './services/api';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -21,12 +23,25 @@ import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 import Forms from './pages/Forms';
 import FormDetails from './pages/FormDetails';
+import IncidentDetail from './pages/IncidentDetail';
+import NotFound from './pages/NotFound';
 
 // Context
 import { AuthProvider } from './context/AuthContext';
 import { FormProvider } from './context/FormContext';
 
 function App() {
+    // Test Backend Connection
+    useEffect(() => {
+        api.get("/")
+            .then((res) => {
+                console.log("✅ Backend Connected:", res.data);
+            })
+            .catch((err) => {
+                console.log("❌ Backend Error:", err);
+            });
+    }, []);
+
     return (
         <BrowserRouter>
             <AuthProvider>
@@ -34,10 +49,12 @@ function App() {
                     <AnimatePresence mode="wait">
                         <Routes>
                             <Route path="/" element={<Landing />} />
+
                             <Route element={<AuthLayout />}>
                                 <Route path="/login" element={<Login />} />
                                 <Route path="/register" element={<Register />} />
                             </Route>
+
                             <Route element={<MainLayout />}>
                                 <Route path="/dashboard" element={<Dashboard />} />
                                 <Route path="/ai-input" element={<AI_Input />} />
@@ -45,15 +62,17 @@ function App() {
                                 <Route path="/form/:id" element={<FormDetails />} />
                                 <Route path="/review" element={<Review />} />
                                 <Route path="/success" element={<Success />} />
-                                {/* ✅ NEW ROUTES */}
                                 <Route path="/analytics" element={<Analytics />} />
                                 <Route path="/settings" element={<Settings />} />
                                 <Route path="/profile" element={<Profile />} />
                                 <Route path="/forms" element={<Forms />} />
+                                <Route path="/incident/:id" element={<IncidentDetail />} />
                             </Route>
-                            <Route path="*" element={<Navigate to="/" replace />} />
+
+                            <Route path="*" element={<NotFound />} />
                         </Routes>
                     </AnimatePresence>
+
                     <ToastContainer
                         position="top-right"
                         autoClose={3000}

@@ -2,7 +2,7 @@ import React from "react";
 import { useFormContext } from "react-hook-form";
 import FieldWrapper from "./FieldWrapper";
 
-const TextField = ({ field }) => {
+const NumberField = ({ field }) => {
     const {
         register,
         formState: { errors },
@@ -18,12 +18,18 @@ const TextField = ({ field }) => {
         >
             <input
                 id={field.id}
-                type="text"
+                type="number"
+                step={field.step || "any"}
+                min={field.min}
+                max={field.max}
                 placeholder={field.placeholder || ""}
-                {...register(field.id, field.validation || {})}
+                {...register(field.id, {
+                    ...field.validation,
+                    setValueAs: (v) => v === "" ? undefined : Number(v)
+                })}
             />
         </FieldWrapper>
     );
 };
 
-export default TextField;
+export default NumberField;

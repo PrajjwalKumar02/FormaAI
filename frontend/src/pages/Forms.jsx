@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FiFileText, FiArrowLeft, FiSearch, FiFilter } from 'react-icons/fi';
+import { FiFileText, FiArrowLeft, FiSearch, FiFilter, FiClock, FiCalendar } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -10,16 +10,76 @@ const Forms = () => {
     const { user } = useAuth();
     const [forms, setForms] = useState([]);
     const [search, setSearch] = useState('');
+    const [filter, setFilter] = useState('all');
 
     useEffect(() => {
-        const allForms = JSON.parse(localStorage.getItem('allForms') || '[]');
-        const userForms = allForms.filter(f => f.userId === user?.id || !f.userId);
-        setForms(userForms);
+        loadForms();
     }, [user]);
 
-    const filteredForms = forms.filter(f =>
-        f.title.toLowerCase().includes(search.toLowerCase())
-    );
+    const loadForms = () => {
+       const loadForms = async () => {
+    try {
+      const loadForms = async () => {
+    try {
+        const res = await api.get("/api/forms");
+
+        setForms(res.data.forms);
+
+    } catch (err) {
+        console.log(err);
+    }
+};
+    } catch (err) {
+        console.error(err);
+    }
+};
+        const userForms = allForms.filter(f => f.userId === user?.id || !f.userId);
+        
+        // ✅ SORT BY DATE - NEWEST FIRST
+        const sorted = [...userForms].sort((a, b) => {
+            const dateA = new Date(a.submittedAt || a.date || 0);
+            const dateB = new Date(b.submittedAt || b.date || 0);
+            return dateB - dateA;
+        });
+        
+        setForms(sorted);
+    };
+
+    const filteredForms = forms.filter(f => {
+        const matchesSearch = f.title?.toLowerCase().includes(search.toLowerCase()) ||
+                             f.reference?.toLowerCase().includes(search.toLowerCase());
+        const matchesFilter = filter === 'all' || f.status?.toLowerCase() === filter.toLowerCase();
+        return matchesSearch && matchesFilter;
+    });
+
+    // ✅ Format date and time
+    const formatDateTime = (dateStr) => {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            let hours = date.getHours();
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${day}/${month}/${year} at ${hours}:${minutes} ${ampm}`;
+        } catch {
+            return dateStr;
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch(status?.toLowerCase()) {
+            case 'completed': return 'bg-green-100 text-green-700';
+            case 'in progress': return 'bg-amber-100 text-amber-700';
+            case 'review': return 'bg-blue-100 text-blue-700';
+            case 'draft': return 'bg-gray-100 text-gray-700';
+            default: return 'bg-gray-100 text-gray-700';
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -46,10 +106,17 @@ const Forms = () => {
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all"
                     />
                 </div>
-                <Button variant="outline" size="sm">
-                    <FiFilter className="mr-2" />
-                    Filter
-                </Button>
+                <select 
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-600 outline-none bg-white"
+                >
+                    <option value="all">All Status</option>
+                    <option value="completed">Completed</option>
+                    <option value="in progress">In Progress</option>
+                    <option value="review">Review</option>
+                    <option value="draft">Draft</option>
+                </select>
             </div>
 
             {/* Form List */}
@@ -72,27 +139,35 @@ const Forms = () => {
                             key={form.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="card flex items-center justify-between"
+                            className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
                         >
-                            <div className="flex items-center gap-4">
-                                <div className="p-2 rounded-lg bg-blue-600/10">
-                                    <FiFileText className="w-5 h-5 text-blue-600" />
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-2.5 rounded-lg bg-blue-600/10">
+                                        <FiFileText className="w-5 h-5 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-900">{form.title || 'Untitled Form'}</p>
+                                        <div className="flex flex-wrap items-center gap-3 mt-1">
+                                            {/* ✅ Show Date and Time */}
+                                            <span className="text-xs text-gray-400 flex items-center gap-1">
+                                                <FiCalendar className="w-3 h-3" />
+                                                {formatDateTime(form.submittedAt || form.date)}
+                                            </span>
+                                            {form.reference && (
+                                                <span className="text-xs text-gray-400">Ref: {form.reference}</span>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p className="font-medium text-gray-900">{form.title}</p>
-                                    <p className="text-xs text-gray-400">{form.date}</p>
+                                <div className="flex items-center gap-3">
+                                    <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
+                                        {form.status || 'Draft'}
+                                    </span>
+                                    <Link to={`/form/${form.id}`} className="text-sm text-blue-600 hover:underline">
+                                        View
+                                    </Link>
                                 </div>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <span className={`text-xs font-medium ${form.status === 'Completed' ? 'status-completed' :
-                                        form.status === 'In Progress' ? 'status-inprogress' :
-                                            'status-draft'
-                                    }`}>
-                                    {form.status}
-                                </span>
-                                <Link to={`/form/${form.id}`} className="text-sm text-blue-600 hover:underline">
-                                    View
-                                </Link>
                             </div>
                         </motion.div>
                     ))}
