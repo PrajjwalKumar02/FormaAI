@@ -1,7 +1,7 @@
 # Database Setup (Member 4)
 
 ## Models (`backend/models/`)
-- `User.js` - User accounts & authentication
+- `User.js` - User accounts & secure bcrypt authentication
 - `FormSchema.js` - Form fields, types, and showIf conditional logic
 - `Draft.js` - Saved incomplete forms (Save & Resume)
 - `Submission.js` - Final submitted form responses

@@ -1,13 +1,17 @@
 const mongoose = require('mongoose');
 
-/**
- * Connect to MongoDB
- */
 const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/forma_ai', {
+        const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/forma_ai';
+        
+        console.log(`📡 Connecting to MongoDB: ${MONGODB_URI}`);
+        
+        const conn = await mongoose.connect(MONGODB_URI, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000,
+            socketTimeoutMS: 45000,
+            family: 4,
         });
 
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
@@ -15,21 +19,9 @@ const connectDB = async () => {
         
         return conn;
     } catch (error) {
-        console.error(`❌ MongoDB Error: ${error.message}`);
-        process.exit(1);
+        console.error(`❌ MongoDB Connection Error: ${error.message}`);
+        throw error;
     }
 };
 
-/**
- * Disconnect from MongoDB
- */
-const disconnectDB = async () => {
-    try {
-        await mongoose.disconnect();
-        console.log('✅ MongoDB Disconnected');
-    } catch (error) {
-        console.error('❌ Error disconnecting:', error);
-    }
-};
-
-module.exports = { connectDB, disconnectDB };
+module.exports = connectDB;

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 
+// A single condition rule: e.g. { field: "incidentType", operator: "equals", value: "collision" }
 const ruleSchema = new mongoose.Schema({
   field: { type: String, required: true },
   operator: {
@@ -8,6 +9,17 @@ const ruleSchema = new mongoose.Schema({
     required: true,
   },
   value: mongoose.Schema.Types.Mixed,
+});
+
+// Multi-condition showIf: supports AND / OR logic across multiple rules
+// This allows 3-level deep branching (e.g. show field C only if A="yes" AND B="collision")
+const showIfSchema = new mongoose.Schema({
+  logic: {
+    type: String,
+    enum: ["AND", "OR"],
+    default: "AND",
+  },
+  conditions: [ruleSchema], // Array of conditions checked together using AND/OR
 });
 
 const fieldSchema = new mongoose.Schema({
@@ -20,7 +32,8 @@ const fieldSchema = new mongoose.Schema({
     regex: String,
     custom: String,
   },
-  showIf: ruleSchema, // Conditional display rule
+  // Now supports multi-level branching with AND/OR logic
+  showIf: showIfSchema,
 });
 
 const formSchema = new mongoose.Schema(

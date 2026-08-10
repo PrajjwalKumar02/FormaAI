@@ -4,10 +4,15 @@ const FormSchema = require("./models/FormSchema");
 
 dotenv.config();
 
+// 3-level deep branching Insurance Claim schema
+// Level 1: incidentType (always shown)
+// Level 2: collisionType (shown only if incidentType = collision)
+// Level 3: airbagDeployed (shown only if incidentType = collision AND collisionType = vehicle)
 const sampleSchema = {
   name: "InsuranceClaim",
-  version: 1,
+  version: 2,
   fields: [
+    // LEVEL 1 - always shown
     {
       name: "vehicleBrand",
       type: "enum",
@@ -34,15 +39,49 @@ const sampleSchema = {
       label: "Road / Highway",
       required: true,
     },
+
+    // LEVEL 2 - shown only if incidentType = animal_collision
     {
       name: "animalType",
       type: "string",
-      label: "Animal type (if animal_collision)",
+      label: "Animal type",
       required: false,
       showIf: {
-        field: "incidentType",
-        operator: "equals",
-        value: "animal_collision",
+        logic: "AND",
+        conditions: [
+          { field: "incidentType", operator: "equals", value: "animal_collision" },
+        ],
+      },
+    },
+
+    // LEVEL 2 - shown only if incidentType = collision
+    {
+      name: "collisionType",
+      type: "enum",
+      label: "Type of collision",
+      required: false,
+      enum: ["vehicle", "wall", "pole", "other"],
+      showIf: {
+        logic: "AND",
+        conditions: [
+          { field: "incidentType", operator: "equals", value: "collision" },
+        ],
+      },
+    },
+
+    // LEVEL 3 - shown only if incidentType = collision AND collisionType = vehicle
+    {
+      name: "airbagDeployed",
+      type: "enum",
+      label: "Was airbag deployed?",
+      required: false,
+      enum: ["yes", "no", "unknown"],
+      showIf: {
+        logic: "AND",
+        conditions: [
+          { field: "incidentType", operator: "equals", value: "collision" },
+          { field: "collisionType", operator: "equals", value: "vehicle" },
+        ],
       },
     },
   ],
@@ -58,7 +97,7 @@ const runSeed = async () => {
     await mongoose.connect(dbUri);
     await FormSchema.deleteMany({ name: "InsuranceClaim" });
     const created = await FormSchema.create(sampleSchema);
-    console.log("✅ Seeded InsuranceClaim schema successfully!");
+    console.log("✅ Seeded 3-level deep branching InsuranceClaim schema!");
     console.log("Schema ID:", created._id);
   } catch (error) {
     console.error("❌ Error seeding database:", error);

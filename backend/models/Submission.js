@@ -18,6 +18,11 @@ const submissionSchema = new mongoose.Schema(
       enum: ["submitted", "reviewed", "approved", "rejected"],
       default: "submitted",
     },
+    // Optional note left by a reviewer (e.g. "Missing documents" or "Approved!")
+    reviewNote: {
+      type: String,
+      default: "",
+    },
   },
   { timestamps: true }
 );

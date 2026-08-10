@@ -1,3 +1,6 @@
+## AI Module Status
+
+The FormaAI AI module is being developed using Google Gemini for dynamic form generation.
 
 ## Current Progress
 
