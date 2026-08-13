@@ -1,321 +1,412 @@
-// src/pages/Review.jsx
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
     FiCheckCircle, 
     FiEdit, 
+    FiArrowLeft, 
     FiSend, 
-    FiArrowLeft,
-    FiUser,
-    FiMail,
-    FiPhone,
-    FiMapPin,
-    FiCalendar,
-    FiClock,
+    FiUser, 
+    FiMail, 
+    FiPhone, 
+    FiMapPin, 
+    FiCalendar, 
+    FiClock, 
+    FiAlertCircle, 
+    FiShield, 
     FiFileText,
-    FiAlertCircle,
-    FiCheck,
-    FiUsers,
-    FiPackage,
-    FiInfo,
-    FiHome,
-    FiShield,
-    FiBook,
-    FiDollarSign,
-    FiHeart,
-    FiCamera,
-    FiTool,
+    FiActivity,
     FiBriefcase,
-    FiTrendingUp
+    FiHome,
+    FiTruck,
+    FiTag,
+    FiAward,
+    FiHeart,
+    FiUsers,
+    FiCamera,
+    FiBook,
+    FiFlag,
+    FiInfo,
+    FiPrinter,
+    FiX,
+    FiEye
 } from 'react-icons/fi';
-import { useForm } from '../context/FormContext';
+import { useAuth } from '../hooks/useAuth';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import { toast } from 'react-toastify';
 
 const Review = () => {
-    const { formData, extractedData, resetForm } = useForm();
     const navigate = useNavigate();
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+    const location = useLocation();
+    const { user } = useAuth();
+    const [extractedData, setExtractedData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-    const reviewData = { ...extractedData, ...formData };
-
-    const handleSubmit = async () => {
-        setIsSubmitting(true);
-        try {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            setShowSuccess(true);
-            
-            const allForms = JSON.parse(localStorage.getItem('allForms') || '[]');
-            const user = JSON.parse(localStorage.getItem('user') || 'null');
-            const newForm = {
-                id: Date.now(),
-                title: reviewData.incidentType || 'Form Submission',
-                date: new Date().toISOString().split('T')[0],
-                status: 'Completed',
-                data: reviewData,
-                extractedData: extractedData,
-                userId: user?.id || 'unknown',
-                userName: user?.name || 'Guest',
-                reference: `F-${new Date().getFullYear()}-${String(allForms.length + 1).padStart(3, '0')}`,
-                submittedAt: new Date().toISOString()
-            };
-            allForms.push(newForm);
-            localStorage.setItem('allForms', JSON.stringify(allForms));
-            
-            const currentCount = parseInt(localStorage.getItem('formCount') || '0');
-            localStorage.setItem('formCount', (currentCount + 1).toString());
-            
-            setTimeout(() => {
-                resetForm();
-                navigate('/success');
-            }, 1500);
-        } catch (error) {
-            console.error('Submission error:', error);
-            alert('Error submitting form. Please try again.');
-        } finally {
-            setIsSubmitting(false);
+    useEffect(() => {
+        console.log('🔍 Review: Checking for data...');
+        console.log('📍 Location state:', location.state);
+        console.log('📦 localStorage:', localStorage.getItem('extractedData'));
+        console.log('📦 sessionStorage:', sessionStorage.getItem('extractedData'));
+        
+        let data = null;
+        
+        // 1. Check location state
+        if (location.state?.extractedData) {
+            data = location.state.extractedData;
+            console.log('✅ Found data in location.state');
         }
-    };
-
-    const handleEdit = () => navigate('/form');
-    const handleBack = () => navigate('/ai-input');
-
-    const getFieldIcon = (key) => {
-        const icons = {
-            ownerName: FiUser,
-            age: FiUser,
-            phone: FiPhone,
-            email: FiMail,
-            address: FiHome,
-            occupation: FiBriefcase,
-            employer: FiBriefcase,
-            incidentType: FiAlertCircle,
-            date: FiCalendar,
-            time: FiClock,
-            location: FiMapPin,
-            severity: FiInfo,
-            vehicle: FiPackage,
-            vehicleNumber: FiPackage,
-            policeReport: FiShield,
-            firNumber: FiBook,
-            policeStation: FiMapPin,
-            policeCharges: FiBook,
-            insuranceCompany: FiShield,
-            policyNumber: FiFileText,
-            claimNumber: FiFileText,
-            claimType: FiFileText,
-            policyType: FiFileText,
-            estimatedLoss: FiDollarSign,
-            hospital: FiHome,
-            doctor: FiUser,
-            injuries: FiHeart,
-            witnesses: FiUsers,
-            evidence: FiCamera,
-            extractedAt: FiClock,
-        };
-        return icons[key] || FiFileText;
-    };
-
-    const formatLabel = (key) => {
-        const labels = {
-            ownerName: 'Owner Name',
-            age: 'Age',
-            phone: 'Phone Number',
-            email: 'Email Address',
-            address: 'Address',
-            occupation: 'Occupation',
-            employer: 'Employer',
-            incidentType: 'Incident Type',
-            date: 'Date of Incident',
-            time: 'Time of Incident',
-            location: 'Location',
-            severity: 'Severity',
-            vehicle: 'Vehicle',
-            vehicleNumber: 'Vehicle Number',
-            policeReport: 'Police Report Filed',
-            firNumber: 'FIR Number',
-            policeStation: 'Police Station',
-            policeCharges: 'Police Charges',
-            insuranceCompany: 'Insurance Company',
-            policyNumber: 'Policy Number',
-            claimNumber: 'Claim Number',
-            claimType: 'Claim Type',
-            policyType: 'Policy Type',
-            estimatedLoss: 'Estimated Loss',
-            hospital: 'Hospital',
-            doctor: 'Doctor',
-            injuries: 'Injuries',
-            witnesses: 'Witnesses',
-            evidence: 'Evidence',
-            extractedAt: 'Extracted At',
-        };
-        return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-    };
-
-    const renderValue = (value) => {
-        if (value === null || value === undefined) return 'Not provided';
-        if (typeof value === 'boolean') return value ? 'Yes ✅' : 'No ❌';
-        if (Array.isArray(value)) return value.length > 0 ? value.join(', ') : 'None';
-        if (typeof value === 'object' && value !== null) {
-            if (Object.keys(value).length === 0) return 'None';
-            return JSON.stringify(value, null, 2);
+        
+        // 2. Check localStorage
+        if (!data) {
+            const stored = localStorage.getItem('extractedData');
+            console.log('📦 Raw localStorage:', stored);
+            if (stored) {
+                try {
+                    data = JSON.parse(stored);
+                    console.log('✅ Parsed localStorage data:', data);
+                } catch (e) {
+                    console.error('❌ Error parsing localStorage:', e);
+                    localStorage.removeItem('extractedData');
+                }
+            }
         }
-        if (typeof value === 'string' && value.trim() === '') return 'Not provided';
-        return value;
+        
+        // 3. Check sessionStorage
+        if (!data) {
+            const sessionData = sessionStorage.getItem('extractedData');
+            console.log('📦 Raw sessionStorage:', sessionData);
+            if (sessionData) {
+                try {
+                    data = JSON.parse(sessionData);
+                    console.log('✅ Parsed sessionStorage data:', data);
+                } catch (e) {
+                    console.error('❌ Error parsing sessionStorage:', e);
+                    sessionStorage.removeItem('extractedData');
+                }
+            }
+        }
+        
+        // 4. If still no data, show error
+        if (!data) {
+            console.log('❌ No data found anywhere');
+            toast.error('No data found. Please describe your incident first.');
+            navigate('/ai-input');
+            setLoading(false);
+            return;
+        }
+        
+        // ✅ Set data
+        console.log('✅ Setting extracted data:', data);
+        setExtractedData(data);
+        setLoading(false);
+        
+    }, [location, navigate]);
+
+    const handleClearData = () => {
+        localStorage.removeItem('extractedData');
+        sessionStorage.removeItem('extractedData');
+        setExtractedData(null);
+        toast.info('Data cleared. Please describe your incident again.');
+        navigate('/ai-input');
     };
 
-    const displayFields = [
-        { key: 'ownerName', label: 'Owner Name' },
-        { key: 'age', label: 'Age' },
-        { key: 'phone', label: 'Phone Number' },
-        { key: 'email', label: 'Email Address' },
-        { key: 'address', label: 'Address' },
-        { key: 'occupation', label: 'Occupation' },
-        { key: 'employer', label: 'Employer' },
-        { key: 'incidentType', label: 'Incident Type' },
-        { key: 'date', label: 'Date of Incident' },
-        { key: 'time', label: 'Time of Incident' },
-        { key: 'location', label: 'Location' },
-        { key: 'severity', label: 'Severity' },
-        { key: 'vehicle', label: 'Vehicle' },
-        { key: 'vehicleNumber', label: 'Vehicle Number' },
-        { key: 'policeReport', label: 'Police Report Filed' },
-        { key: 'firNumber', label: 'FIR Number' },
-        { key: 'policeStation', label: 'Police Station' },
-        { key: 'policeCharges', label: 'Police Charges' },
-        { key: 'insuranceCompany', label: 'Insurance Company' },
-        { key: 'policyNumber', label: 'Policy Number' },
-        { key: 'claimNumber', label: 'Claim Number' },
-        { key: 'claimType', label: 'Claim Type' },
-        { key: 'policyType', label: 'Policy Type' },
-        { key: 'estimatedLoss', label: 'Estimated Loss' },
-        { key: 'hospital', label: 'Hospital' },
-        { key: 'doctor', label: 'Doctor' },
-        { key: 'injuries', label: 'Injuries' },
-        { key: 'witnesses', label: 'Witnesses' },
-        { key: 'evidence', label: 'Evidence' },
-        { key: 'extractedAt', label: 'Extracted At' },
-    ];
+    const handleEdit = () => {
+        navigate('/ai-input');
+    };
+
+    const handleSubmit = () => {
+        if (!extractedData) {
+            toast.error('No data to submit');
+            return;
+        }
+        
+        const allForms = JSON.parse(localStorage.getItem('allForms') || '[]');
+        const newForm = {
+            id: Date.now().toString(),
+            userId: user?.id,
+            title: `${extractedData?.incidentType || 'Incident'} Report`,
+            reference: `FRM-${Date.now().toString().slice(-6)}`,
+            data: extractedData,
+            status: 'Completed',
+            submittedAt: new Date().toISOString(),
+            extractedData: extractedData
+        };
+        
+        allForms.unshift(newForm);
+        localStorage.setItem('allForms', JSON.stringify(allForms));
+        localStorage.removeItem('extractedData');
+        sessionStorage.removeItem('extractedData');
+        
+        toast.success('✅ Form submitted successfully!');
+        navigate('/success', { state: { formId: newForm.id } });
+    };
+
+    const renderField = (label, value, icon) => {
+        if (!value || value === 'Not provided' || value === '' || value === 'Not specified') {
+            return null;
+        }
+        return (
+            <div className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                    {icon}
+                </div>
+                <div>
+                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</p>
+                    <p className="text-sm text-gray-900 font-medium">
+                        {Array.isArray(value) ? value.join(', ') : value}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (!extractedData) {
+        return (
+            <div className="text-center py-12">
+                <FiAlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-500">No data to review</p>
+                <p className="text-sm text-gray-400 mt-2">Please describe your incident first</p>
+                <Button variant="primary" onClick={() => navigate('/ai-input')} className="mt-4">
+                    Go to AI Input
+                </Button>
+            </div>
+        );
+    }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
+        <div className="space-y-6 max-w-4xl mx-auto">
             {/* Header */}
-            <div className="text-center">
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-green-500/10 text-green-600 text-sm font-medium mb-4"
-                >
-                    <FiCheckCircle className="w-4 h-4" />
-                    <span>Review Extracted Information</span>
-                </motion.div>
-                <h1 className="text-3xl font-bold text-gray-900">Review & Submit</h1>
-                <p className="text-gray-500 mt-2">
-                    AI has extracted all information from your description. Review and submit.
-                </p>
-            </div>
-
-            {/* Description */}
-            {reviewData.description && (
-                <div className="bg-blue-50 rounded-2xl p-6 border border-blue-200">
-                    <div className="flex items-start gap-3">
-                        <FiFileText className="w-5 h-5 text-blue-600 mt-0.5" />
-                        <div>
-                            <h3 className="font-semibold text-gray-900">Your Description</h3>
-                            <p className="text-gray-700 text-sm leading-relaxed mt-1 wrap-break-word">
-                                {reviewData.description}
-                            </p>
-                        </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <button 
+                        onClick={() => navigate(-1)}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                        <FiArrowLeft className="w-5 h-5 text-gray-600" />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">Review Extracted Data</h1>
+                        <p className="text-sm text-gray-500 mt-0.5">
+                            Verify all information extracted by AI
+                        </p>
                     </div>
                 </div>
-            )}
-
-            {/* All Extracted Data Cards */}
-            <div className="grid md:grid-cols-2 gap-4">
-                {displayFields.map((field) => {
-                    const value = reviewData[field.key];
-                    const displayValue = renderValue(value);
-                    
-                    return (
-                        <motion.div
-                            key={field.key}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100"
-                        >
-                            <div className="flex items-start gap-3">
-                                <div className="p-2 rounded-lg bg-blue-600/10 mt-0.5">
-                                    {React.createElement(getFieldIcon(field.key), { className: "w-4 h-4 text-blue-600" })}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">
-                                        {field.label}
-                                    </p>
-                                    <p className="text-sm font-medium text-gray-900 mt-1 wrap-break-word">
-                                        {displayValue}
-                                    </p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    );
-                })}
+                <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={handleClearData}>
+                        <FiX className="mr-1.5" />
+                        Clear Data
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={handleEdit}>
+                        <FiEdit className="mr-1.5" />
+                        Edit
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => window.print()}>
+                        <FiPrinter className="mr-1.5" />
+                        Print
+                    </Button>
+                </div>
             </div>
 
-            {/* Extracted At */}
-            {reviewData.extractedAt && (
-                <div className="text-center text-sm text-gray-400">
-                    <FiClock className="inline mr-2" />
-                    Extracted on: {reviewData.extractedAt}
+            <Card className="p-6">
+                <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                        <FiCheckCircle className="w-5 h-5 text-green-500" />
+                        AI Extracted Information
+                    </h3>
+                    <span className="text-xs text-gray-400">Confidence: 92%</span>
                 </div>
-            )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Personal Information */}
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                            <FiUser className="w-4 h-4 text-blue-600" />
+                            Personal Information
+                        </h4>
+                        {renderField('Full Name', extractedData.ownerName || extractedData.fullName, <FiUser />)}
+                        {renderField('Age', extractedData.age, <FiTag />)}
+                        {renderField('Phone Number', extractedData.phone || extractedData.phoneNumber, <FiPhone />)}
+                        {renderField('Email Address', extractedData.email || extractedData.emailAddress, <FiMail />)}
+                        {renderField('Address', extractedData.address, <FiHome />)}
+                        {renderField('City', extractedData.city, <FiMapPin />)}
+                        {renderField('State', extractedData.state, <FiFlag />)}
+                        {renderField('Country', extractedData.country, <FiFlag />)}
+                        {renderField('Pincode', extractedData.pincode, <FiTag />)}
+                        {renderField('Occupation', extractedData.occupation, <FiBriefcase />)}
+                        {renderField('Employer', extractedData.employer, <FiBriefcase />)}
+                    </div>
+
+                    {/* Incident Details */}
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                            <FiAlertCircle className="w-4 h-4 text-red-600" />
+                            Incident Details
+                        </h4>
+                        {renderField('Incident Type', extractedData.incidentType, <FiAlertCircle />)}
+                        {renderField('Sub Type', extractedData.incidentSubType, <FiTag />)}
+                        {renderField('Severity', extractedData.severity, <FiActivity />)}
+                        {renderField('Date', extractedData.date || extractedData.incidentDate, <FiCalendar />)}
+                        {renderField('Time', extractedData.time || extractedData.incidentTime, <FiClock />)}
+                        {renderField('Location', extractedData.location || extractedData.incidentLocation, <FiMapPin />)}
+                        {renderField('Weather', extractedData.weatherConditions, <FiActivity />)}
+                        {renderField('Road Conditions', extractedData.roadConditions, <FiActivity />)}
+                        {renderField('Visibility', extractedData.visibility, <FiEye />)}
+                        {renderField('Speed', extractedData.speed, <FiActivity />)}
+                    </div>
+
+                    {/* Vehicle Details */}
+                    {extractedData.vehicleMake || extractedData.vehicle ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiTruck className="w-4 h-4 text-purple-600" />
+                                Vehicle Details
+                            </h4>
+                            {renderField('Vehicle Make', extractedData.vehicleMake || extractedData.vehicle, <FiTruck />)}
+                            {renderField('Vehicle Model', extractedData.vehicleModel, <FiTruck />)}
+                            {renderField('Vehicle Number', extractedData.vehicleNumber, <FiTag />)}
+                            {renderField('Vehicle Color', extractedData.vehicleColor, <FiTag />)}
+                            {renderField('Vehicle Type', extractedData.vehicleType, <FiTruck />)}
+                            {renderField('Airbag Deployed', extractedData.airbagDeployed, <FiShield />)}
+                            {renderField('Seatbelt Used', extractedData.seatbeltUsed, <FiShield />)}
+                        </div>
+                    ) : null}
+
+                    {/* Police Details */}
+                    {extractedData.policeReportFiled || extractedData.policeReport ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiShield className="w-4 h-4 text-yellow-600" />
+                                Police Details
+                            </h4>
+                            {renderField('Police Report Filed', extractedData.policeReportFiled || extractedData.policeReport, <FiShield />)}
+                            {renderField('FIR Number', extractedData.firNumber, <FiFileText />)}
+                            {renderField('Police Station', extractedData.policeStation || extractedData.policeStationName, <FiHome />)}
+                            {renderField('Police Officer', extractedData.policeOfficerName, <FiUser />)}
+                            {renderField('Police Charges', extractedData.policeCharges || extractedData.policeChargesFiled, <FiFileText />)}
+                            {renderField('Police Contact', extractedData.policeContactNumber, <FiPhone />)}
+                        </div>
+                    ) : null}
+
+                    {/* Insurance Details */}
+                    {extractedData.insuranceCompanyName || extractedData.insuranceCompany ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiAward className="w-4 h-4 text-green-600" />
+                                Insurance Details
+                            </h4>
+                            {renderField('Insurance Company', extractedData.insuranceCompanyName || extractedData.insuranceCompany, <FiAward />)}
+                            {renderField('Policy Number', extractedData.policyNumber, <FiFileText />)}
+                            {renderField('Policy Type', extractedData.policyType, <FiTag />)}
+                            {renderField('Claim Number', extractedData.claimNumber, <FiFileText />)}
+                            {renderField('Claim Type', extractedData.claimType, <FiTag />)}
+                            {renderField('Claim Status', extractedData.claimStatus, <FiActivity />)}
+                            {renderField('Insurance Agent', extractedData.insuranceAgentName, <FiUser />)}
+                        </div>
+                    ) : null}
+
+                    {/* Financial Details */}
+                    {extractedData.estimatedTotalLoss || extractedData.estimatedLoss ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiAward className="w-4 h-4 text-emerald-600" />
+                                Financial Details
+                            </h4>
+                            {renderField('Estimated Total Loss', extractedData.estimatedTotalLoss || extractedData.estimatedLoss, <FiAward />)}
+                            {renderField('Vehicle Repair Cost', extractedData.vehicleRepairCost, <FiAward />)}
+                            {renderField('Medical Expenses', extractedData.medicalExpenses, <FiHeart />)}
+                            {renderField('Property Damage', extractedData.propertyDamageCost, <FiHome />)}
+                            {renderField('Loss of Income', extractedData.lossOfIncome, <FiBriefcase />)}
+                        </div>
+                    ) : null}
+
+                    {/* Medical Details */}
+                    {extractedData.hospitalName || extractedData.hospital ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiHeart className="w-4 h-4 text-red-600" />
+                                Medical Details
+                            </h4>
+                            {renderField('Hospital', extractedData.hospitalName || extractedData.hospital, <FiHeart />)}
+                            {renderField('Hospital Address', extractedData.hospitalAddress, <FiMapPin />)}
+                            {renderField('Doctor', extractedData.doctorName || extractedData.doctor, <FiUser />)}
+                            {renderField('Doctor Specialty', extractedData.doctorSpecialty, <FiTag />)}
+                            {renderField('Injuries', extractedData.injuriesDescription || extractedData.injuries, <FiAlertCircle />)}
+                            {renderField('Treatment', extractedData.treatmentGiven, <FiHeart />)}
+                            {renderField('Recovery Time', extractedData.recoveryTime, <FiClock />)}
+                            {renderField('Ambulance Used', extractedData.ambulanceUsed, <FiTruck />)}
+                        </div>
+                    ) : null}
+
+                    {/* Witnesses & Evidence */}
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                            <FiUsers className="w-4 h-4 text-indigo-600" />
+                            Witnesses & Evidence
+                        </h4>
+                        {renderField('Witnesses', extractedData.witnesses, <FiUsers />)}
+                        {renderField('Evidence', extractedData.evidence || extractedData.evidenceAvailable, <FiCamera />)}
+                        {renderField('CCTV Footage', extractedData.cctvFootage, <FiCamera />)}
+                        {renderField('Photographs', extractedData.photographs, <FiCamera />)}
+                    </div>
+
+                    {/* Legal Details */}
+                    {extractedData.lawyerName ? (
+                        <div className="space-y-3">
+                            <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                                <FiBook className="w-4 h-4 text-gray-600" />
+                                Legal Details
+                            </h4>
+                            {renderField('Lawyer', extractedData.lawyerName, <FiUser />)}
+                            {renderField('Court Case Filed', extractedData.courtCaseFiled, <FiFileText />)}
+                            {renderField('Case Number', extractedData.courtCaseNumber, <FiFileText />)}
+                            {renderField('Court Name', extractedData.courtName, <FiHome />)}
+                            {renderField('Hearing Date', extractedData.hearingDate, <FiCalendar />)}
+                        </div>
+                    ) : null}
+
+                    {/* Additional Information */}
+                    <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2 border-b pb-2">
+                            <FiInfo className="w-4 h-4 text-gray-600" />
+                            Additional Information
+                        </h4>
+                        {renderField('Driving Experience', extractedData.drivingExperience, <FiActivity />)}
+                        {renderField('License Number', extractedData.drivingLicenseNumber, <FiFileText />)}
+                        {renderField('Employer Notified', extractedData.employerNotified, <FiBriefcase />)}
+                        {renderField('Leave Approved', extractedData.leaveApproved, <FiCheckCircle />)}
+                        {renderField('Emotional Trauma', extractedData.emotionalTrauma, <FiHeart />)}
+                    </div>
+                </div>
+            </Card>
 
             {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-4">
-                <Button variant="outline" onClick={handleBack} disabled={isSubmitting}>
-                    <FiArrowLeft className="mr-2" />
-                    Back to Input
-                </Button>
-                <div className="flex-1" />
-                <Button variant="outline" onClick={handleEdit} disabled={isSubmitting}>
-                    <FiEdit className="mr-2" />
-                    Edit
-                </Button>
+            <div className="flex gap-4">
                 <Button
                     variant="primary"
+                    size="lg"
                     onClick={handleSubmit}
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting}
-                    className="shadow-lg shadow-blue-500/25"
+                    className="flex-1 shadow-lg shadow-blue-500/25"
                 >
                     <FiSend className="mr-2" />
                     Submit Form
                 </Button>
-            </div>
-
-            {/* Success Overlay */}
-            {showSuccess && (
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm"
+                <Button
+                    variant="outline"
+                    size="lg"
+                    onClick={() => navigate('/ai-input')}
                 >
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: 'spring', duration: 0.6 }}
-                        className="bg-white rounded-3xl p-12 text-center max-w-sm mx-4"
-                    >
-                        <div className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center mx-auto mb-4">
-                            <FiCheck className="w-10 h-10 text-white" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900">Submitting...</h3>
-                        <p className="text-gray-500 mt-2">Please wait while we process your form.</p>
-                    </motion.div>
-                </motion.div>
-            )}
+                    Edit Description
+                </Button>
+            </div>
         </div>
     );
 };

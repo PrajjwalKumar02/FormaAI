@@ -23,6 +23,8 @@ const submissionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // When the form was actually submitted by the user
+    submittedAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );

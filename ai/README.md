@@ -111,3 +111,13 @@ Request:
   ]
 }
 ```
+## Gemini Integration Status
+
+- Google Gemini has been selected as the AI provider.
+- Gemini API integration has been implemented in `services/gemini_service.py`.
+- AI provider configuration is managed through environment variables.
+- Gemini API key is stored locally in `.env`.
+- `.env` is excluded from Git using `.gitignore`.
+- Local Flask AI service is running on port `5001`.
+- Gemini API connectivity testing is in progress.
+- Fallback handling is available when Gemini is unavailable.

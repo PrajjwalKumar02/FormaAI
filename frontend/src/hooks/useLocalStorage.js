@@ -5,6 +5,10 @@ export const useLocalStorage = (key, initialValue = null) => {
         try {
             const item = localStorage.getItem(key);
             if (item) {
+                // ✅ Check if it's a token (string) or JSON
+                if (key === 'token') {
+                    return item; // Return as is, don't parse
+                }
                 return JSON.parse(item);
             }
             return initialValue;
@@ -20,7 +24,12 @@ export const useLocalStorage = (key, initialValue = null) => {
         try {
             const valueToStore = value instanceof Function ? value(storedValue) : value;
             setStoredValue(valueToStore);
-            localStorage.setItem(key, JSON.stringify(valueToStore));
+            // ✅ For token, store as string without JSON.stringify
+            if (key === 'token') {
+                localStorage.setItem(key, valueToStore);
+            } else {
+                localStorage.setItem(key, JSON.stringify(valueToStore));
+            }
         } catch (error) {
             console.error(`Error setting localStorage key "${key}":`, error);
         }
@@ -39,7 +48,15 @@ export const useLocalStorage = (key, initialValue = null) => {
     useEffect(() => {
         const handleStorageChange = (e) => {
             if (e.key === key && e.newValue) {
-                setStoredValue(JSON.parse(e.newValue));
+                try {
+                    if (key === 'token') {
+                        setStoredValue(e.newValue);
+                    } else {
+                        setStoredValue(JSON.parse(e.newValue));
+                    }
+                } catch (error) {
+                    console.error(`Error parsing storage change for key "${key}":`, error);
+                }
             }
         };
         

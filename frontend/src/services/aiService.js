@@ -1,89 +1,67 @@
 import api from './api';
 
 export const aiService = {
-    /**
-     * Extract incident data from text using AI
-     * @param {string} text - Incident description text
-     * @returns {Promise} - { success, data }
-     */
-    extractIncident: async (text) => {
+    extract: async (description) => {
         try {
-            const response = await api.post('/incidents/extract', { description: text });
-            return response.data;
+            console.log('🔍 aiService.extract called');
+            console.log('📝 Description:', description.substring(0, 100) + '...');
+            
+            const response = await api.post('/ai/extract', { description });
+            
+            console.log('📥 Response status:', response.status);
+            console.log('📥 Response data:', response.data);
+            
+            // ✅ Check if response has data
+            if (!response.data) {
+                console.error('❌ No data in response');
+                return { success: false, message: 'No data returned from AI' };
+            }
+            
+            // ✅ If response is already the data, wrap it
+            if (response.data.success !== undefined) {
+                return response.data;
+            }
+            
+            // ✅ If response.data has data property
+            if (response.data.data) {
+                return {
+                    success: true,
+                    data: response.data.data
+                };
+            }
+            
+            // ✅ Fallback: wrap the response
+            return {
+                success: true,
+                data: response.data
+            };
         } catch (error) {
-            throw error.response?.data || { success: false, message: 'AI extraction failed' };
+            console.error('❌ AI Extraction Error:', error);
+            if (error.response) {
+                console.error('❌ Response error data:', error.response.data);
+                return { success: false, message: error.response.data?.message || 'AI service error' };
+            }
+            return { success: false, message: 'AI service unavailable' };
         }
     },
 
-    /**
-     * Generate form from extracted incident data
-     * @param {Object} extractedData - Data from AI extraction
-     * @returns {Promise} - { success, data }
-     */
-    generateForm: async (extractedData) => {
+    generate: async (prompt) => {
         try {
-            const response = await api.post('/ai/generate-form', extractedData);
+            const response = await api.post('/ai/generate', { prompt });
             return response.data;
         } catch (error) {
-            throw error.response?.data || { success: false, message: 'Form generation failed' };
+            console.error('❌ AI Generation Error:', error);
+            throw error.response?.data || { success: false, message: 'AI generation failed' };
         }
     },
 
-    /**
-     * Analyze incident with AI
-     * @param {string} incidentId - Incident ID
-     * @returns {Promise} - { success, data }
-     */
-    analyze: async (incidentId) => {
+    analyze: async (incidentData) => {
         try {
-            const response = await api.get(`/ai/analyze/${incidentId}`);
+            const response = await api.post('/ai/analyze', { incident_data: incidentData });
             return response.data;
         } catch (error) {
+            console.error('❌ AI Analysis Error:', error);
             throw error.response?.data || { success: false, message: 'AI analysis failed' };
-        }
-    },
-
-    /**
-     * Get AI predictions for incident
-     * @param {Object} data - Incident data for prediction
-     * @returns {Promise} - { success, data }
-     */
-    predict: async (data) => {
-        try {
-            const response = await api.post('/ai/predict', data);
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || { success: false, message: 'AI prediction failed' };
-        }
-    },
-
-    /**
-     * Chat with AI assistant
-     * @param {string} message - User message
-     * @param {string} context - Optional context (incident ID, etc.)
-     * @returns {Promise} - { success, data }
-     */
-    chat: async (message, context = null) => {
-        try {
-            const response = await api.post('/ai/chat', { message, context });
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || { success: false, message: 'AI chat failed' };
-        }
-    },
-
-    /**
-     * Auto-fill form fields using AI
-     * @param {string} text - Text to analyze
-     * @param {Array} fields - Form fields to fill
-     * @returns {Promise} - { success, data }
-     */
-    autofill: async (text, fields) => {
-        try {
-            const response = await api.post('/ai/autofill', { text, fields });
-            return response.data;
-        } catch (error) {
-            throw error.response?.data || { success: false, message: 'AI autofill failed' };
         }
     }
 };

@@ -17,6 +17,7 @@ const sampleSchema = {
       name: "vehicleBrand",
       type: "enum",
       label: "Vehicle Brand",
+      description: "Select the make of the vehicle involved in the incident",
       required: true,
       enum: ["Honda City", "Toyota Camry", "Ford Focus", "Other"],
     },
@@ -87,6 +88,44 @@ const sampleSchema = {
   ],
 };
 
+const healthcareSchema = {
+  name: "HealthcareClaim",
+  version: 1,
+  fields: [
+    {
+      name: "patientName",
+      type: "string",
+      label: "Patient Full Name",
+      required: true,
+    },
+    {
+      name: "treatmentType",
+      type: "enum",
+      label: "Type of Treatment",
+      required: true,
+      enum: ["consultation", "surgery", "medication", "therapy"],
+    },
+    {
+      name: "hospitalStay",
+      type: "boolean",
+      label: "Was there an overnight hospital stay?",
+      required: true,
+    },
+    {
+      name: "dischargeDate",
+      type: "date",
+      label: "Date of Discharge",
+      required: false,
+      showIf: {
+        logic: "AND",
+        conditions: [
+          { field: "hospitalStay", operator: "equals", value: true },
+        ],
+      },
+    }
+  ],
+};
+
 const runSeed = async () => {
   try {
     const dbUri = process.env.MONGODB_URI;
@@ -95,10 +134,17 @@ const runSeed = async () => {
       process.exit(1);
     }
     await mongoose.connect(dbUri);
+    
+    // Seed Insurance Claim
     await FormSchema.deleteMany({ name: "InsuranceClaim" });
-    const created = await FormSchema.create(sampleSchema);
-    console.log("✅ Seeded 3-level deep branching InsuranceClaim schema!");
-    console.log("Schema ID:", created._id);
+    const createdInsurance = await FormSchema.create(sampleSchema);
+    console.log("✅ Seeded InsuranceClaim schema successfully!");
+    
+    // Seed Healthcare Claim
+    await FormSchema.deleteMany({ name: "HealthcareClaim" });
+    const createdHealthcare = await FormSchema.create(healthcareSchema);
+    console.log("✅ Seeded HealthcareClaim schema successfully!");
+    
   } catch (error) {
     console.error("❌ Error seeding database:", error);
   } finally {

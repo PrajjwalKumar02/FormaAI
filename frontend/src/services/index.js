@@ -1,26 +1,18 @@
-// Export all services
 export { default as api } from './api';
 export { authService } from './authService';
+export { aiService } from './aiService';
 export { incidentService } from './incidentService';
 export { formService } from './formService';
-export { aiService } from './aiService';
-export { uploadService } from './uploadService';
 
-// Default export for convenience
-import api from './api';
-import { authService } from './authService';
-import { incidentService } from './incidentService';
-import { formService } from './formService';
-import { aiService } from './aiService';
-import { uploadService } from './uploadService';
+// Default export
+import * as authService from './authService';
+import * as aiService from './aiService';
+import * as incidentService from './incidentService';
+import * as formService from './formService';
 
-const services = {
-    api,
+export default {
     auth: authService,
-    incidents: incidentService,
-    forms: formService,
     ai: aiService,
-    upload: uploadService
+    incidents: incidentService,
+    forms: formService
 };
-
-export default services;

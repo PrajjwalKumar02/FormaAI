@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';  // 
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, useAnimation, useInView } from 'framer-motion';
 import {
     FiZap,
@@ -28,7 +28,7 @@ const Landing = () => {
     const controls = useAnimation();
     const ref = useRef(null);
     const inView = useInView(ref, { once: true });
-    const navigate = useNavigate();  // 
+    const navigate = useNavigate();
 
     React.useEffect(() => {
         if (inView) {
@@ -133,7 +133,7 @@ const Landing = () => {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-2">
-                            <div className="p-2 rounded-xl bg-linear-to-br from-blue-600 to-cyan-400 shadow-lg shadow-blue-500/25">
+                            <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400 shadow-lg shadow-blue-500/25">
                                 <FiZap className="w-6 h-6 text-white" />
                             </div>
                             <span className="font-bold text-xl tracking-tight">
@@ -192,7 +192,7 @@ const Landing = () => {
 
             {/* Hero Section */}
             <section className="relative pt-32 pb-20 px-4 overflow-hidden">
-                <div className="absolute inset-0 bg-linear-to-br from-blue-50/50 via-white to-cyan-50/30" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-white to-cyan-50/30" />
                 <div className="absolute top-20 right-20 w-96 h-96 bg-blue-400/10 rounded-full blur-3xl" />
                 <div className="absolute bottom-20 left-20 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl" />
 
@@ -203,13 +203,13 @@ const Landing = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.8 }}
                         >
-                            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-linear-to-r from-blue-600/10 to-cyan-500/10 text-blue-600 text-sm font-medium mb-6 border border-blue-600/10">
+                            <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-600/10 to-cyan-500/10 text-blue-600 text-sm font-medium mb-6 border border-blue-600/10">
                                 <FaRocket className="w-4 h-4" />
                                 <span>🚀 AI-Powered Form Engine v2.0</span>
                             </div>
                             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
                                 Transform Text into
-                                <span className="bg-linear-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent animate-gradient"> Intelligent Forms</span>
+                                <span className="bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent bg-[length:200%] animate-gradient"> Intelligent Forms</span>
                             </h1>
                             <p className="text-lg text-gray-600 mb-8 max-w-lg leading-relaxed">
                                 Describe any incident in natural language and watch as Forma AI automatically extracts, structures, and generates intelligent forms with unprecedented accuracy.
@@ -221,8 +221,6 @@ const Landing = () => {
                                         <FiArrowRight className="ml-2 group-hover:translate-x-1 transition-transform" />
                                     </Button>
                                 </Link>
-
-
                                 <Button
                                     variant="outline"
                                     size="lg"
@@ -240,7 +238,7 @@ const Landing = () => {
                                     {['JD', 'MC', 'ER', 'AK'].map((initials, i) => (
                                         <div
                                             key={i}
-                                            className="w-10 h-10 rounded-full bg-linear-to-br from-blue-600 to-cyan-400 border-2 border-white flex items-center justify-center text-white text-sm font-medium shadow-lg"
+                                            className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-cyan-400 border-2 border-white flex items-center justify-center text-white text-sm font-medium shadow-lg"
                                         >
                                             {initials}
                                         </div>
@@ -260,8 +258,8 @@ const Landing = () => {
                             className="relative"
                         >
                             <div className="relative">
-                                <div className="absolute -inset-4 bg-linear-to-r from-blue-600/20 to-cyan-500/20 rounded-3xl blur-2xl" />
-                                <div className="relative glass rounded-3xl p-8 shadow-2xl border border-white/20">
+                                <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/20 to-cyan-500/20 rounded-3xl blur-2xl" />
+                                <div className="relative bg-white/70 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white/20">
                                     <div className="flex items-center justify-between mb-6">
                                         <div className="flex items-center space-x-2">
                                             <div className="w-3 h-3 rounded-full bg-red-500" />
@@ -272,7 +270,7 @@ const Landing = () => {
                                     </div>
 
                                     <div className="space-y-4">
-                                        <div className="p-4 rounded-xl bg-linear-to-r from-blue-600/5 to-cyan-500/5 border border-blue-600/10">
+                                        <div className="p-4 rounded-xl bg-gradient-to-r from-blue-600/5 to-cyan-500/5 border border-blue-600/10">
                                             <div className="flex items-center space-x-3">
                                                 <div className="p-2 rounded-lg bg-blue-600/10">
                                                     <FiEdit className="w-5 h-5 text-blue-600" />
@@ -300,7 +298,7 @@ const Landing = () => {
 
                                         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
                                             <div className="flex items-center space-x-2">
-                                                <div className="w-8 h-8 rounded-full bg-linear-to-br from-emerald-400 to-green-500 flex items-center justify-center text-white text-xs font-bold">
+                                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-green-500 flex items-center justify-center text-white text-xs font-bold">
                                                     AI
                                                 </div>
                                                 <div>
@@ -322,7 +320,7 @@ const Landing = () => {
             </section>
 
             {/* Stats Section */}
-            <section className="py-16 px-4 bg-linear-to-r from-blue-600/5 via-cyan-500/5 to-blue-600/5 border-y border-gray-100/50">
+            <section className="py-16 px-4 bg-gradient-to-r from-blue-600/5 via-cyan-500/5 to-blue-600/5 border-y border-gray-100/50">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
                         {stats.map((stat, index) => (
@@ -334,7 +332,7 @@ const Landing = () => {
                                 viewport={{ once: true }}
                                 className="text-center"
                             >
-                                <p className="text-4xl font-bold bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                                <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
                                     {stat.number}
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">{stat.label}</p>
@@ -357,7 +355,7 @@ const Landing = () => {
                         <span className="text-sm font-semibold text-blue-600 uppercase tracking-wider">Features</span>
                         <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4">
                             Everything You Need to
-                            <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Streamline Forms</span>
+                            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Streamline Forms</span>
                         </h2>
                         <p className="text-gray-500 max-w-2xl mx-auto">
                             Powerful AI-driven features designed to transform how you handle form creation and data extraction.
@@ -374,8 +372,8 @@ const Landing = () => {
                         {features.map((feature, index) => (
                             <motion.div key={index} variants={itemVariants}>
                                 <Card hoverable className="p-8 h-full group relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-blue-600/5 to-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-                                    <div className={`p-3 rounded-xl bg-linear-to-r ${feature.color} w-fit mb-4 shadow-lg shadow-${feature.color.split(' ')[1]?.replace('-', '')}/20`}>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-600/5 to-cyan-500/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+                                    <div className={`p-3 rounded-xl bg-gradient-to-r ${feature.color} w-fit mb-4 shadow-lg`}>
                                         <div className="text-white">{feature.icon}</div>
                                     </div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-2">{feature.title}</h3>
@@ -388,7 +386,7 @@ const Landing = () => {
             </section>
 
             {/* How It Works Section */}
-            <section id="how-it-works" className="py-24 px-4 bg-linear-to-b from-gray-50 to-white">
+            <section id="how-it-works" className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white">
                 <div className="max-w-7xl mx-auto">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -400,7 +398,7 @@ const Landing = () => {
                         <span className="text-sm font-semibold text-blue-600 uppercase tracking-wider">Process</span>
                         <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4">
                             How It
-                            <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Works</span>
+                            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Works</span>
                         </h2>
                         <p className="text-gray-500 max-w-2xl mx-auto">
                             Three simple steps from description to completed form
@@ -408,7 +406,7 @@ const Landing = () => {
                     </motion.div>
 
                     <div className="grid md:grid-cols-3 gap-8 relative">
-                        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-linear-to-r from-blue-600/30 via-cyan-500/30 to-blue-600/30 -translate-y-1/2" />
+                        <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-600/30 via-cyan-500/30 to-blue-600/30 -translate-y-1/2" />
 
                         {[
                             {
@@ -442,8 +440,8 @@ const Landing = () => {
                                 className="relative"
                             >
                                 <div className="bg-white rounded-3xl shadow-xl p-8 text-center hover:shadow-2xl transition-shadow duration-300 border border-gray-100/50 relative z-10">
-                                    <div className="w-20 h-20 rounded-full bg-linear-to-r from-blue-600/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-4">
-                                        <div className={`w-14 h-14 rounded-full bg-linear-to-r ${item.color} flex items-center justify-center text-white shadow-lg`}>
+                                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-600/10 to-cyan-500/10 flex items-center justify-center mx-auto mb-4">
+                                        <div className={`w-14 h-14 rounded-full bg-gradient-to-r ${item.color} flex items-center justify-center text-white shadow-lg`}>
                                             {item.icon}
                                         </div>
                                     </div>
@@ -470,7 +468,7 @@ const Landing = () => {
                         <span className="text-sm font-semibold text-blue-600 uppercase tracking-wider">Testimonials</span>
                         <h2 className="text-4xl md:text-5xl font-bold mt-2 mb-4">
                             Trusted by
-                            <span className="bg-linear-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Industry Leaders</span>
+                            <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent"> Industry Leaders</span>
                         </h2>
                         <p className="text-gray-500 max-w-2xl mx-auto">
                             See what our customers say about their experience with Forma AI
@@ -488,7 +486,7 @@ const Landing = () => {
                             >
                                 <Card hoverable className="p-8 h-full">
                                     <div className="flex items-center space-x-4 mb-4">
-                                        <div className="w-12 h-12 rounded-full bg-linear-to-r from-blue-600 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-600 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
                                             {testimonial.image}
                                         </div>
                                         <div>
@@ -510,7 +508,7 @@ const Landing = () => {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 px-4 bg-linear-to-r from-blue-600 via-cyan-600 to-blue-600 relative overflow-hidden">
+            <section className="py-20 px-4 bg-gradient-to-r from-blue-600 via-cyan-600 to-blue-600 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-20" />
                 <div className="max-w-4xl mx-auto text-center relative z-10">
                     <motion.div
@@ -532,8 +530,6 @@ const Landing = () => {
                                     <FiArrowRight className="ml-2" />
                                 </Button>
                             </Link>
-
-
                             <Button
                                 variant="outline"
                                 size="lg"
@@ -557,7 +553,7 @@ const Landing = () => {
                     <div className="grid md:grid-cols-4 gap-12 mb-12">
                         <div>
                             <div className="flex items-center space-x-2 mb-4">
-                                <div className="p-2 rounded-xl bg-linear-to-br from-blue-600 to-cyan-400">
+                                <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-400">
                                     <FiZap className="w-6 h-6 text-white" />
                                 </div>
                                 <span className="font-bold text-xl text-white">
@@ -617,18 +613,6 @@ const Landing = () => {
                     </div>
                 </div>
             </footer>
-
-            <style jsx>{`
-                @keyframes gradient {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
-                .animate-gradient {
-                    background-size: 200% 200%;
-                    animation: gradient 3s ease infinite;
-                }
-            `}</style>
         </div>
     );
 };

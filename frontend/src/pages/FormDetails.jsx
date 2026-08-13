@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-    FiArrowLeft, 
-    FiFileText, 
-    FiCalendar, 
-    FiUser, 
-    FiMail, 
-    FiPhone, 
+import {
+    FiArrowLeft,
+    FiFileText,
+    FiCalendar,
+    FiUser,
+    FiMail,
+    FiPhone,
     FiMapPin,
     FiDownload,
     FiPrinter,
@@ -30,13 +30,23 @@ const FormDetails = () => {
     const [showFullDescription, setShowFullDescription] = useState(false);
 
     useEffect(() => {
+        console.log('🔍 FormDetails: Looking for form with ID:', id);
+
         const allForms = JSON.parse(localStorage.getItem('allForms') || '[]');
-        const found = allForms.find(f => f.id === parseInt(id));
+        console.log('📦 All forms in localStorage:', allForms);
+
+        // ✅ FIXED: Find by string ID (not parseInt)
+        const found = allForms.find(f => {
+            const formId = f.id || f._id || '';
+            return String(formId) === String(id);
+        });
+
+        console.log('📄 Found form:', found);
         setForm(found || null);
         setLoading(false);
     }, [id]);
 
-    //  PDF Download Function
+    // ✅ PDF Download Function
     const handleDownloadPDF = () => {
         if (!form) {
             toast.error('No form data to download');
@@ -44,13 +54,13 @@ const FormDetails = () => {
         }
 
         const content = generatePDFContent(form);
-        
+
         try {
             const blob = new Blob([content], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `Form_${form.reference || form.id}.html`;
+            link.download = `Form_${form.reference || form.id || 'form'}.html`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -63,21 +73,20 @@ const FormDetails = () => {
     };
 
     const generatePDFContent = (formData) => {
-        const currentDate = new Date().toLocaleDateString('en-IN', { 
-            day: '2-digit', 
-            month: '2-digit', 
-            year: 'numeric' 
+        const currentDate = new Date().toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         });
-        const currentTime = new Date().toLocaleTimeString('en-IN', { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            hour12: true 
+        const currentTime = new Date().toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
         });
 
         const extracted = formData.extractedData || {};
         const excludedKeys = ['description', 'extractedAt', 'extractedAtFull'];
 
-        // Get all extracted fields except description
         const extractedFields = Object.entries(extracted)
             .filter(([key]) => !excludedKeys.includes(key))
             .filter(([key, value]) => value && value !== 'Not provided' && value !== 'Not specified' && value !== '');
@@ -210,7 +219,6 @@ const FormDetails = () => {
                     </div>
                 </div>
 
-                <!--  Extracted Information Section -->
                 ${extractedFields.length > 0 ? `
                 <div class="section">
                     <h3>🤖 Extracted Information</h3>
@@ -223,7 +231,6 @@ const FormDetails = () => {
                 </div>
                 ` : ''}
 
-                <!-- Original Description Section -->
                 ${extracted.description ? `
                 <div class="section" style="border-left-color: #8B5CF6;">
                     <h3>📝 Original Description</h3>
@@ -271,7 +278,6 @@ const FormDetails = () => {
     const extracted = form.extractedData || {};
     const excludedKeys = ['description', 'extractedAt', 'extractedAtFull'];
 
-    // Get all extracted fields except description
     const extractedFields = Object.entries(extracted)
         .filter(([key]) => !excludedKeys.includes(key))
         .filter(([key, value]) => value && value !== 'Not provided' && value !== 'Not specified' && value !== '');
@@ -287,7 +293,7 @@ const FormDetails = () => {
                     <div>
                         <h1 className="text-2xl font-bold text-gray-900">Form Details</h1>
                         <p className="text-sm text-gray-500 mt-0.5">
-                            Reference: {form.reference || 'N/A'} • {form.date}
+                            Reference: {form.reference || 'N/A'} • {form.date || 'N/A'}
                         </p>
                     </div>
                 </div>
@@ -299,11 +305,10 @@ const FormDetails = () => {
 
             {/* Status */}
             <div className="flex items-center gap-3">
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    form.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                    form.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
-                    'bg-gray-100 text-gray-700'
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${form.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                        form.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
+                            'bg-gray-100 text-gray-700'
+                    }`}>
                     {form.status || 'Draft'}
                 </span>
                 <span className="text-sm text-gray-400">
@@ -316,7 +321,7 @@ const FormDetails = () => {
                 )}
             </div>
 
-            {/*  Extracted Information - Only display here */}
+            {/* Extracted Information */}
             <Card>
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <FiFileText className="w-5 h-5 text-blue-600" />
@@ -336,7 +341,7 @@ const FormDetails = () => {
                 )}
             </Card>
 
-            {/*  Original Description */}
+            {/* Original Description */}
             {extracted.description && (
                 <Card>
                     <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
@@ -392,7 +397,7 @@ const FormDetails = () => {
     );
 };
 
-//  Helper functions
+// Helper functions
 const formatLabel = (key) => {
     return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
 };

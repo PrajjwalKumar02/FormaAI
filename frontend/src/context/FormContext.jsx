@@ -1,6 +1,5 @@
-// src/context/FormContext.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from "../services/api";
+
 // Create the context
 const FormContext = createContext();
 
@@ -167,34 +166,25 @@ export const FormProvider = ({ children }) => {
       setFormStatus('submitted');
 
       return { success: true, form: savedForm };
-} catch (error) {
-    console.error('Form submission failed:', error);
-    setFormStatus('error');
+    } catch (error) {
+      setFormStatus('error');
+      return { success: false, error: error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return {
-        success: false,
-        error: error.message || 'Unable to submit form. Please try again.'
-    };
-}
   // Validate form
   const validateForm = (data = formData) => {
     const newErrors = {};
     const fields = formConfig?.sections?.flatMap(s => s.fields) || [];
 
     fields.forEach(field => {
-    const value = data[field.id];
-
-    if (
-        field.required &&
-        (
-            value === undefined ||
-            value === null ||
-            (typeof value === 'string' && value.trim() === '')
-        )
-    ) {
+      const value = data[field.id];
+      if (field.required && !value) {
         newErrors[field.id] = `${field.label} is required`;
-    }
-});
+      }
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

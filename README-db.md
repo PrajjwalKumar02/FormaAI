@@ -14,3 +14,4 @@
 cd backend
 node seed.js
 ```
+*(Note: This will safely clear existing schemas and seed a 3-level deep branching **InsuranceClaim** and a **HealthcareClaim** to demonstrate dynamic form capabilities).*

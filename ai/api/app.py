@@ -6,14 +6,15 @@ from flask_cors import CORS
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Import from ai_service
+from config.ai_config import config
 from services.ai_service import (
-    extract_incident_data,
+    extract_incident_data,  
     generate_form,
     analyze_incident,
     autofill_fields,
     detect_form_type,
-    get_form_fields
+    get_form_fields,
+    generate_form_from_extracted
 )
 
 app = Flask(__name__)
@@ -26,14 +27,14 @@ CORS(app)
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({
-        "service": "FormaAI Python Service",
-        "provider": "Gemini",
-        "version": "1.0.0",
+        "service": "FormaAI AI Service",
+        "provider": config.AI_PROVIDER,
+        "version": "2.0.0",
         "status": "running",
         "endpoints": {
             "health": "GET /health",
-            "generate": "POST /api/ai/generate",
             "extract": "POST /api/ai/extract",
+            "generate": "POST /api/ai/generate",
             "analyze": "POST /api/ai/analyze",
             "generate-form": "POST /api/ai/generate-form"
         }
@@ -43,13 +44,14 @@ def home():
 def health():
     return jsonify({
         "status": "healthy",
-        "service": "FormaAI Python AI Service",
-        "provider": "Gemini",
+        "service": "FormaAI AI Service",
+        "provider": config.AI_PROVIDER,
         "timestamp": datetime.now().isoformat()
     })
 
 @app.route("/api/ai/extract", methods=["POST"])
 def extract():
+    """Extract data from incident description"""
     try:
         data = request.get_json()
         if not data or "description" not in data:
@@ -59,6 +61,7 @@ def extract():
             }), 400
 
         result = extract_incident_data(data["description"])
+        
         return jsonify({
             "success": True,
             "data": result,
@@ -72,6 +75,7 @@ def extract():
 
 @app.route("/api/ai/generate", methods=["POST"])
 def generate():
+    """Generate form from prompt"""
     try:
         data = request.get_json()
         if not data or "prompt" not in data:
@@ -90,6 +94,7 @@ def generate():
 
 @app.route("/api/ai/analyze", methods=["POST"])
 def analyze():
+    """Analyze incident data"""
     try:
         data = request.get_json()
         if not data or "incident_data" not in data:
@@ -112,6 +117,7 @@ def analyze():
 
 @app.route("/api/ai/generate-form", methods=["POST"])
 def generate_form_from_data():
+    """Generate form from extracted data"""
     try:
         data = request.get_json()
         if not data or "extracted_data" not in data:
@@ -156,22 +162,20 @@ def server_error(error):
     }), 500
 
 if __name__ == "__main__":
-    port = int(os.getenv("AI_SERVICE_PORT", 5001))
-    debug = os.getenv("DEBUG", "True").lower() == "true"
+    port = config.AI_SERVICE_PORT
+    debug = config.DEBUG
     
     print(f"""
 ╔═══════════════════════════════════════════════════════════════╗
 ║                                                               ║
-║   🤖 FormaAI AI Service (Gemini)                              ║
+║   🤖 FormaAI AI Service                                       ║
 ║                                                               ║
-║   📡 Port:          {port}                                      ║
-║   📍 URL:           http://localhost:{port}                     ║
-║   🔧 Debug Mode:    {debug}                                      ║
-║   🤖 AI Provider:   Gemini                                    ║
+║   📡 Port:          {port}                                     ║
+║   📍 URL:           http://localhost:{port}                    ║
+║   🤖 Provider:      {config.AI_PROVIDER}                      ║
+║   📦 Model:         {config.GEMINI_MODEL}                     ║
 ║                                                               ║
 ║   📋 Endpoints:                                               ║
-║   - GET  /                        Service info                ║
-║   - GET  /health                  Health check                ║
 ║   - POST /api/ai/extract          Extract data                ║
 ║   - POST /api/ai/generate         Generate form               ║
 ║   - POST /api/ai/analyze          Analyze incident            ║

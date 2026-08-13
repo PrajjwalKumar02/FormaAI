@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiSend, FiTrash2, FiZap, FiClock, FiCheckCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 import { useForm } from '../context/FormContext';
-import { aiService } from '../services'; 
+import { aiService } from '../services';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import Loader from '../components/Loader';
@@ -17,7 +17,6 @@ const AIInput = () => {
     const { setExtractedData, generateFormConfig } = useForm();
     const navigate = useNavigate();
 
-    //  Handle Generate - Calls Backend AI
     const handleGenerate = async () => {
         if (!inputText.trim()) {
             toast.warning('Please describe your incident first');
@@ -42,27 +41,51 @@ const AIInput = () => {
                 setProgress(step.progress);
             }
 
-            //  Call Backend AI Service
+            console.log('🔍 Sending to AI:', inputText.substring(0, 100) + '...');
+            
+            // ✅ Call AI Service
             const response = await aiService.extract(inputText);
+            console.log('📥 Full AI Response:', response);
 
-            if (response.success) {
-                //  Save extracted data
-                const extractedData = response.data;
+            // ✅ Extract data from response
+            let extractedData = null;
+            
+            if (response.success && response.data) {
+                extractedData = response.data;
+            } else if (response.data) {
+                extractedData = response.data;
+            }
+            
+            if (extractedData && Object.keys(extractedData).length > 0) {
+                console.log('✅ Extracted Data:', extractedData);
+                
+                // ✅ Save to context
                 setExtractedData(extractedData);
                 generateFormConfig(extractedData);
                 
+                // ✅ Save to localStorage
+                const jsonData = JSON.stringify(extractedData);
+                localStorage.setItem('extractedData', jsonData);
+                console.log('✅ Saved to localStorage. Length:', jsonData.length);
+                
+                // ✅ Also save to sessionStorage as backup
+                sessionStorage.setItem('extractedData', jsonData);
+                
                 toast.success('✅ AI extraction complete!');
                 
-                // Navigate to review page
+                // ✅ Navigate with data
                 setTimeout(() => {
-                    navigate('/review');
+                    navigate('/review', { 
+                        state: { extractedData: extractedData } 
+                    });
                 }, 500);
             } else {
-                toast.error(response.message || 'AI extraction failed');
+                console.error('❌ No extracted data found in response:', response);
+                toast.error('No data extracted. Please try again.');
             }
 
         } catch (error) {
-            console.error('Processing Error:', error);
+            console.error('❌ Processing Error:', error);
             toast.error(error.message || 'Error processing your request. Please try again.');
         } finally {
             setIsProcessing(false);

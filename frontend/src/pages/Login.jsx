@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';  // 
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
@@ -15,28 +15,37 @@ const Login = () => {
     const [error, setError] = useState('');
     
     const { login } = useAuth();
-    const navigate = useNavigate();  // 
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         
-        if (!email || !password) {
+        // ✅ Trim email to remove spaces
+        const trimmedEmail = email.trim();
+        const trimmedPassword = password.trim();
+        
+        if (!trimmedEmail || !trimmedPassword) {
             setError('Please fill in all fields');
             return;
         }
         
+        console.log('🔑 Attempting login with:', { email: trimmedEmail });
+        
         setIsLoading(true);
         
         try {
-            const result = await login(email, password);
+            const result = await login(trimmedEmail, trimmedPassword);
+            console.log('📤 Login result:', result);
+            
             if (result.success) {
-                console.log('Login successful!');
+                console.log('✅ Login successful!');
                 navigate('/dashboard');
             } else {
                 setError(result.error || 'Login failed. Please try again.');
             }
         } catch (err) {
+            console.error('❌ Login error:', err);
             setError('An unexpected error occurred.');
         } finally {
             setIsLoading(false);
@@ -95,7 +104,6 @@ const Login = () => {
                         <span className="text-sm text-gray-600">Remember me</span>
                     </label>
                     
-                    
                     <button
                         type="button"
                         onClick={() => {
@@ -132,7 +140,6 @@ const Login = () => {
 
             {/* Social Login Buttons */}
             <div className="grid grid-cols-2 gap-4">
-               
                 <button
                     type="button"
                     onClick={() => {
@@ -150,7 +157,6 @@ const Login = () => {
                     <span className="text-sm text-gray-700">Google</span>
                 </button>
 
-                
                 <button
                     type="button"
                     onClick={() => {
@@ -166,7 +172,6 @@ const Login = () => {
                 </button>
             </div>
 
-           
             <p className="text-center text-sm text-gray-600 mt-6">
                 Don't have an account?{' '}
                 <button

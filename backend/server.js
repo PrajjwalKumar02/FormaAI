@@ -36,9 +36,9 @@ app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// CORS
+// ✅ UPDATED CORS - Allow all origins for development
 app.use(cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
@@ -146,11 +146,11 @@ const startServer = async () => {
 ║   🚀 Forma AI Backend Server Started                                      ║
 ║                                                                           ║
 ║   📡 Port:          ${PORT}                                                  ║
-║   🌍 Environment:   ${process.env.NODE_ENV || 'development'}                                           ║
-║   📍 API URL:       http://localhost:${PORT}/api                             ║
-║   📊 Database:      ${isConnected ? '✅ Connected' : '❌ Disconnected'}                                          ║
-║   📁 Database Name: ${mongoose.connection.name || 'N/A'}                                              ║
-║   🔗 Client:        ${process.env.CLIENT_URL || 'http://localhost:5173'}                                 ║
+║   🌍 Environment:   ${process.env.NODE_ENV || 'development'}                   ║
+║   📍 API URL:       http://localhost:${PORT}/api                           ║
+║   📊 Database:      ${isConnected ? '✅ Connected' : '❌ Disconnected'}         ║
+║   📁 Database Name: ${mongoose.connection.name || 'N/A'}                   ║
+║   🔗 Client:        ${process.env.CLIENT_URL || 'http://localhost:5173'}   ║
 ║                                                                           ║
 ║   📋 Endpoints:                                                           ║
 ║   - GET  /health                      Health check                        ║
@@ -201,7 +201,7 @@ const startServer = async () => {
     }
 };
 
-//  Call the start function
+// ✅ Call the start function
 startServer();
 
 module.exports = app;

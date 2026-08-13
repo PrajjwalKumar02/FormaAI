@@ -17,37 +17,22 @@ const Forms = () => {
     }, [user]);
 
     const loadForms = () => {
-       const loadForms = async () => {
-    try {
-      const loadForms = async () => {
-    try {
-        const res = await api.get("/api/forms");
-
-        setForms(res.data.forms);
-
-    } catch (err) {
-        console.log(err);
-    }
-};
-    } catch (err) {
-        console.error(err);
-    }
-};
+        const allForms = JSON.parse(localStorage.getItem('allForms') || '[]');
         const userForms = allForms.filter(f => f.userId === user?.id || !f.userId);
-        
+
         // ✅ SORT BY DATE - NEWEST FIRST
         const sorted = [...userForms].sort((a, b) => {
             const dateA = new Date(a.submittedAt || a.date || 0);
             const dateB = new Date(b.submittedAt || b.date || 0);
             return dateB - dateA;
         });
-        
+
         setForms(sorted);
     };
 
     const filteredForms = forms.filter(f => {
         const matchesSearch = f.title?.toLowerCase().includes(search.toLowerCase()) ||
-                             f.reference?.toLowerCase().includes(search.toLowerCase());
+            f.reference?.toLowerCase().includes(search.toLowerCase());
         const matchesFilter = filter === 'all' || f.status?.toLowerCase() === filter.toLowerCase();
         return matchesSearch && matchesFilter;
     });
@@ -72,7 +57,7 @@ const Forms = () => {
     };
 
     const getStatusColor = (status) => {
-        switch(status?.toLowerCase()) {
+        switch (status?.toLowerCase()) {
             case 'completed': return 'bg-green-100 text-green-700';
             case 'in progress': return 'bg-amber-100 text-amber-700';
             case 'review': return 'bg-blue-100 text-blue-700';
@@ -106,7 +91,7 @@ const Forms = () => {
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 outline-none transition-all"
                     />
                 </div>
-                <select 
+                <select
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
                     className="px-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-600 outline-none bg-white"
@@ -136,7 +121,7 @@ const Forms = () => {
                 <div className="space-y-3">
                     {filteredForms.map((form) => (
                         <motion.div
-                            key={form.id}
+                            key={form.id || form._id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
@@ -149,7 +134,6 @@ const Forms = () => {
                                     <div>
                                         <p className="font-medium text-gray-900">{form.title || 'Untitled Form'}</p>
                                         <div className="flex flex-wrap items-center gap-3 mt-1">
-                                            {/* ✅ Show Date and Time */}
                                             <span className="text-xs text-gray-400 flex items-center gap-1">
                                                 <FiCalendar className="w-3 h-3" />
                                                 {formatDateTime(form.submittedAt || form.date)}
@@ -164,7 +148,8 @@ const Forms = () => {
                                     <span className={`px-2.5 py-0.5 text-xs font-medium rounded-full ${getStatusColor(form.status)}`}>
                                         {form.status || 'Draft'}
                                     </span>
-                                    <Link to={`/form/${form.id}`} className="text-sm text-blue-600 hover:underline">
+                                    {/* ✅ FIXED: Use form._id or form.id */}
+                                    <Link to={`/form/${form._id || form.id}`} className="text-sm text-blue-600 hover:underline">
                                         View
                                     </Link>
                                 </div>

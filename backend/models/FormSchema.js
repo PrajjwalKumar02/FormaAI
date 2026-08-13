@@ -24,8 +24,13 @@ const showIfSchema = new mongoose.Schema({
 
 const fieldSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, required: true }, // e.g. "string", "enum", "number", "date"
+  type: { 
+    type: String, 
+    required: true,
+    enum: ["string", "number", "boolean", "date", "enum", "file", "checkbox"]
+  }, // Restricted to valid form input types
   label: String,
+  description: String, // Help text or description for the field
   required: { type: Boolean, default: false },
   enum: [String],
   validation: {
@@ -42,6 +47,8 @@ const formSchema = new mongoose.Schema(
     version: { type: Number, default: 1 },
     fields: [fieldSchema],
     rules: [ruleSchema],
+    // Allows admins to disable a form without deleting it
+    isActive: { type: Boolean, default: true },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
