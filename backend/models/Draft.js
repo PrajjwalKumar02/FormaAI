@@ -14,6 +14,8 @@ const draftSchema = new mongoose.Schema(
     },
     partialData: { type: mongoose.Schema.Types.Mixed, default: {} },
     lastSavedAt: { type: Date, default: Date.now },
+    // Tracks how much of the form the user has filled (0 to 100)
+    completionPercent: { type: Number, min: 0, max: 100, default: 0 },
   },
   { timestamps: true }
 );
