@@ -37,4 +37,27 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+//  NEW: Optional auth middleware (doesn't block if no token)
+const optionalProtect = async (req, res, next) => {
+    let token;
+    
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const user = await User.findById(decoded.id).select('-password');
+            if (user) {
+                req.user = user;
+            }
+        } catch (error) {
+            // Invalid token - just continue without user
+        }
+    }
+    
+    next();
+};
+
+module.exports = { protect, optionalProtect };
