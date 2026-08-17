@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: formaai-backend
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -c gunicorn.conf.py api.app:app
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-1.5-flash
+      - key: TEMPERATURE
+        value: 0.3
+      - key: MAX_TOKENS
+        value: 4096
+      - key: SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+    healthCheckPath: /health
