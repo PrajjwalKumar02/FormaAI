@@ -4,11 +4,17 @@ services:
     runtime: python
     plan: free
     autoDeploy: true
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn -c gunicorn.conf.py api.app:app
+    rootDir: ai                                              # ✅ CRITICAL FIX
+    buildCommand: pip install -r requirements.txt            # Now runs in ai/
+    startCommand: gunicorn -c gunicorn.conf.py api.app:app   # Now runs in ai/
+    healthCheckPath: /health
     envVars:
       - key: ENVIRONMENT
         value: production
+      - key: DEBUG
+        value: "false"                                       # ✅ Added
+      - key: AI_PROVIDER
+        value: gemini                                        # ✅ Added
       - key: GEMINI_API_KEY
         sync: false
       - key: GEMINI_MODEL
@@ -21,4 +27,5 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-    healthCheckPath: /health
+      - key: PYTHON_VERSION
+        value: "3.11.5"                                      # ✅ Added
