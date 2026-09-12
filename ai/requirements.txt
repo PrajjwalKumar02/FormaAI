@@ -1,12 +1,31 @@
-# ai/requirements.txt
+# ============================================================
+# Forma-AI Python Service Requirements
+# ============================================================
+
+# Core Flask
 Flask==2.3.3
 flask-cors==4.0.0
 flask-sqlalchemy==3.1.1
 flask-limiter==3.5.0
-google-generativeai==0.3.0
+
+# Environment
 python-dotenv==1.0.0
-gunicorn==21.2.0
+
+# ✅ Google GenAI SDK (new) - matches `from google import genai`
+google-genai>=0.3.0
+google-auth>=2.0.0
+google-api-core>=2.0.0
+protobuf>=4.25.0
+
+# HTTP
 requests==2.31.0
+
+# Cache
 redis==5.0.1
+
+# Server
+gunicorn==21.2.0
+
+# Monitoring
 sentry-sdk==1.38.0
 prometheus-client==0.19.0
